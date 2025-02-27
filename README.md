@@ -1,2 +1,2 @@
 # Antikvariaatit
-Esimerkki sivusto.
+Oppimistehtävä.
