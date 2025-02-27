@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            height: 100%;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .header-bar {
+            width: 100%;
+            height: 150px;
+            background-color: #DDA15E;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .header-bar h1 {
+            margin: 0;
+            color: #000000;
+            font-family: 'Merriweather', sans-serif;
+            font-size: 36px;
+            text-align: center;
+        }
+        .hamburger-menu {
+            display: none;
+            font-size: 30px;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+        }
+        .content-bar {
+            width: 100%;
+            height: 50px;
+            background-color: #FFFFFF;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            flex-shrink: 0;
+        }
+        nav.desktop-nav {
+            display: flex;
+            gap: 50px;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+        nav.desktop-nav a {
+            text-decoration: none;
+            color: #000000;
+            font-family: 'Roboto', sans-serif;
+            font-size: 18px;
+        }
+        nav.desktop-nav a:hover {
+            color: #DDA15E;
+        }
+        nav.mobile-nav {
+            display: none;
+            flex-direction: column;
+            background-color: #FFFFFF;
+            position: absolute;
+            top: 150px;
+            width: 100%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        nav.mobile-nav a {
+            text-decoration: none;
+            color: #000000;
+            font-family: 'Roboto', sans-serif;
+            font-size: 18px;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #DDA15E;
+        }
+
+        .footer-bar {
+            width: 100%;
+            height: 200px;
+            background-color: #DDA15E;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: auto;
+            flex-shrink: 0;
+        }
+        .footer-bar h1 {
+            margin: 0;
+            color: #000000;
+            font-family: 'Merriweather', sans-serif;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .centered-image {
+            max-width: 50%; 
+            height: auto; 
+            margin: 60px auto;
+            justify-content: center;
+            display: flex;
+        }
+        .frontpage-text {
+            text-align: left;
+            color: #000000;
+            font-family: 'Roboto', sans-serif;
+            font-size: 18px;
+            margin: 20px auto;
+            max-width: 80%;
+        }
+        .contactpage-text {
+            text-align: left;
+            color: #000000;
+            font-family: 'Roboto', sans-serif;
+            font-size: 18px;
+            margin: 200px auto;
+            max-width: 80%;
+            
+        }
+        @media (max-width: 768px) {
+            .header-bar h1 {
+                font-size: 24px;
+            }
+            .content-bar {
+                display: none;
+            }
+            .hamburger-menu {
+                display: block;
+            }
+            nav.mobile-nav {
+                display: none;
+            }
+        }
+    </style>
+    <title>Suomalaiset antikvariaatit</title>
+</head>
+<body>
+    <div class="header-bar">
+        <h1>Suomalaiset antikvariaatit</h1>
+        <div class="hamburger-menu" onclick="toggleMenu()">
+            &#9776;
+        </div>
+    </div>
+    <div class="content-bar">
+        <nav class="desktop-nav">
+            <a href="#etusivu">Etusivu</a>
+            <a href="#antikvariaatit">Antikvariaatit</a>
+            <a href="#palaute">Palaute</a>
+            <a href="#yhteystiedot">Yhteystiedot</a>
+        </nav>
+    </div>
+    <nav id="nav-menu" class="mobile-nav">
+        <a href="#etusivu">Etusivu</a>
+        <a href="#antikvariaatit">Antikvariaatit</a>
+        <a href="#palaute">Palaute</a>
+        <a href="#yhteystiedot">Yhteystiedot</a>
+    </nav>
+    <div class="contactpage-text">
+        <p>testi.testinen(at)koesivu.fi<br>Testikuja 4 00000 Testilä<br>tel. +358 123 4567</p>
+        
+    </div>
+    <div class="footer-bar">
+        <h1>Copyright 2025</h1>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            var navMenu = document.getElementById("nav-menu");
+            if (navMenu.style.display === "flex") {
+                navMenu.style.display = "none";
+            } else {
+                navMenu.style.display = "flex";
+            }
+        }
+
+        window.addEventListener('resize', function() {
+            var navMenu = document.getElementById("nav-menu");
+            if (window.innerWidth > 768) {
+                navMenu.style.display = "none";
+            }
+        });
+
+        window.addEventListener('click', function(event) {
+            var navMenu = document.getElementById("nav-menu");
+            var hamburgerMenu = document.querySelector(".hamburger-menu");
+            if (window.innerWidth <= 768 && !hamburgerMenu.contains(event.target) && !navMenu.contains(event.target)) {
+                navMenu.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>
