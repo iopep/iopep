@@ -1,199 +1,116 @@
 <!DOCTYPE html>
 <html lang="fi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Tervetuloa Suomalaiset antikvariaatit -sivustolle!">
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suomalaiset antikvariaatit - Etusivu</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { height: 100%; }
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { display:flex; flex-direction:column; min-height:100vh; font-family:'Roboto', sans-serif; }
 
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
+.header-bar {
+    height:150px;
+    background:#DDA15E;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    position:relative;
+}
+.header-bar h1 {
+    font-family:'Merriweather', serif;
+    font-size:36px;
+}
 
-        .header-bar {
-            width: 100%;
-            height: 150px;
-            background-color: #DDA15E;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
+.centered-image {
+    max-width:700px;
+    width:80%;
+    margin:40px auto;
+    display:block;
+}
 
-        .header-bar h1 {
-            color: #000;
-            font-family: 'Merriweather', sans-serif;
-            font-size: 36px;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
+.score-section {
+    max-width:1000px;
+    width:90%;
+    margin:20px auto 40px auto;
+}
 
-        .hamburger-menu {
-            display: none;
-            font-size: 30px;
-            cursor: pointer;
-            position: absolute;
-            right: 20px;
-        }
+.team-inputs {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:10px;
+    margin-bottom:15px;
+}
 
-        .content-bar {
-            width: 100%;
-            height: 50px;
-            background-color: #FFF;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+.team-inputs input {
+    padding:8px;
+}
 
-        nav.desktop-nav {
-            display: flex;
-            gap: 50px;
-        }
+button {
+    padding:8px 12px;
+    background:#DDA15E;
+    border:none;
+    cursor:pointer;
+    font-weight:bold;
+    margin:5px 0;
+}
 
-        nav.desktop-nav a {
-            text-decoration: none;
-            color: #000;
-            font-family: 'Roboto', sans-serif;
-            font-size: 18px;
-        }
+button:hover { background:#c68c4f; }
 
-        nav.desktop-nav a:hover { color: #DDA15E; }
+.scoreboard {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:15px;
+    margin-top:20px;
+}
 
-        nav.mobile-nav {
-            display: none;
-            flex-direction: column;
-            background-color: #FFF;
-            position: absolute;
-            top: 150px;
-            width: 100%;
-        }
+.team-card {
+    background:#f4f4f4;
+    padding:15px;
+    border-radius:10px;
+    text-align:center;
+    transition:0.3s;
+}
 
-        nav.mobile-nav a {
-            padding: 10px;
-            text-align: center;
-            border-bottom: 1px solid #DDA15E;
-            text-decoration: none;
-            color: #000;
-        }
+.team-card.winner {
+    background:#c8e6c9;
+    transform:scale(1.05);
+}
 
-        .centered-image {
-            max-width: 700px;
-            width: 80%;
-            margin: 40px auto;
-            display: block;
-        }
+.points-controls {
+    margin-top:10px;
+}
 
-        .frontpage-text {
-            font-family: 'Roboto', sans-serif;
-            font-size: 18px;
-            margin: 40px auto;
-            max-width: 700px;
-            width: 80%;
-        }
+.points-controls input {
+    width:60px;
+    padding:5px;
+    text-align:center;
+}
 
-        /* UUSI TULOSSEURANTA */
-        .score-section {
-            max-width: 900px;
-            width: 90%;
-            margin: 40px auto;
-            font-family: 'Roboto', sans-serif;
-        }
+.footer-bar {
+    margin-top:auto;
+    height:120px;
+    background:#DDA15E;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
 
-        .team-inputs {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .team-inputs input {
-            padding: 10px;
-            font-size: 16px;
-        }
-
-        .scoreboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .team-card {
-            background-color: #f4f4f4;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .team-card h3 {
-            margin-bottom: 10px;
-        }
-
-        .team-card button {
-            margin-top: 10px;
-            padding: 8px 15px;
-            background-color: #DDA15E;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .team-card button:hover {
-            background-color: #c68c4f;
-        }
-
-        .footer-bar {
-            width: 100%;
-            height: 200px;
-            background-color: #DDA15E;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: auto;
-        }
-
-        @media (max-width: 768px) {
-            .header-bar h1 { font-size: 24px; }
-            .content-bar { display: none; }
-            .hamburger-menu { display: block; }
-        }
-    </style>
-
-    <title>Suomalaiset antikvariaatit - Etusivu</title>
+@media(max-width:768px){
+    .header-bar h1 { font-size:24px; }
+}
+</style>
 </head>
 
 <body>
 
 <div class="header-bar">
     <h1>Suomalaiset antikvariaatit</h1>
-    <div class="hamburger-menu" onclick="toggleMenu()">&#9776;</div>
 </div>
 
-<div class="content-bar">
-    <nav class="desktop-nav">
-        <a href="#">Etusivu</a>
-        <a href="#">Antikvariaatit</a>
-        <a href="#">Palaute</a>
-        <a href="#">Yhteystiedot</a>
-    </nav>
-</div>
+<img src="vanhat_kirjat.jpg" alt="Kuva vanhoista kirjoista" class="centered-image">
 
-<nav id="nav-menu" class="mobile-nav">
-    <a href="#">Etusivu</a>
-    <a href="#">Antikvariaatit</a>
-    <a href="#">Palaute</a>
-    <a href="#">Yhteystiedot</a>
-</nav>
-
-<!-- TULOSSEURANTA -->
 <div class="score-section">
     <h2>Joukkueiden tulosseuranta</h2>
 
@@ -205,44 +122,92 @@
     </div>
 
     <button onclick="createScoreboard()">Aloita tulosseuranta</button>
+    <button onclick="resetScores()">Nollaa pisteet</button>
 
     <div id="scoreboard" class="scoreboard"></div>
 </div>
+
 <div class="footer-bar">
-    <h1>Copyright @kipsipaavi 2026</h1>
+    <h3>Copyright 2025</h3>
 </div>
 
 <script>
-function toggleMenu() {
-    var navMenu = document.getElementById("nav-menu");
-    navMenu.style.display = navMenu.style.display === "flex" ? "none" : "flex";
-}
+let teams = [];
 
 function createScoreboard() {
-    const scoreboard = document.getElementById("scoreboard");
-    scoreboard.innerHTML = "";
-
+    teams = [];
     for (let i = 1; i <= 4; i++) {
         const name = document.getElementById("team" + i).value || "Joukkue " + i;
+        teams.push({ name: name, score: 0 });
+    }
+    saveToStorage();
+    renderScoreboard();
+}
 
-        const teamCard = document.createElement("div");
-        teamCard.className = "team-card";
+function renderScoreboard() {
+    const board = document.getElementById("scoreboard");
+    board.innerHTML = "";
 
-        teamCard.innerHTML = `
-            <h3>${name}</h3>
-            <p>Pisteet: <span id="score${i}">0</span></p>
-            <button onclick="addPoint(${i})">Lisää piste</button>
+    teams.sort((a, b) => b.score - a.score);
+
+    const highestScore = Math.max(...teams.map(t => t.score));
+
+    teams.forEach((team, index) => {
+        const card = document.createElement("div");
+        card.className = "team-card";
+        if (team.score === highestScore && highestScore > 0) {
+            card.classList.add("winner");
+        }
+
+        card.innerHTML = `
+            <h3>${team.name}</h3>
+            <p>Pisteet: ${team.score}</p>
+            <div class="points-controls">
+                <input type="number" id="points${index}" value="1" min="1">
+                <br>
+                <button onclick="addPoints(${index})">Lisää</button>
+                <button onclick="subtractPoints(${index})">Vähennä</button>
+            </div>
         `;
 
-        scoreboard.appendChild(teamCard);
+        board.appendChild(card);
+    });
+}
+
+function addPoints(index) {
+    const amount = parseInt(document.getElementById("points" + index).value) || 1;
+    teams[index].score += amount;
+    saveToStorage();
+    renderScoreboard();
+}
+
+function subtractPoints(index) {
+    const amount = parseInt(document.getElementById("points" + index).value) || 1;
+    teams[index].score -= amount;
+    if (teams[index].score < 0) teams[index].score = 0;
+    saveToStorage();
+    renderScoreboard();
+}
+
+function resetScores() {
+    teams.forEach(team => team.score = 0);
+    saveToStorage();
+    renderScoreboard();
+}
+
+function saveToStorage() {
+    localStorage.setItem("scoreData", JSON.stringify(teams));
+}
+
+function loadFromStorage() {
+    const data = localStorage.getItem("scoreData");
+    if (data) {
+        teams = JSON.parse(data);
+        renderScoreboard();
     }
 }
 
-function addPoint(teamNumber) {
-    const scoreElement = document.getElementById("score" + teamNumber);
-    let currentScore = parseInt(scoreElement.textContent);
-    scoreElement.textContent = currentScore + 1;
-}
+window.onload = loadFromStorage;
 </script>
 
 </body>
