@@ -8,125 +8,60 @@
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { display:flex; flex-direction:column; min-height:100vh; font-family:'Roboto', sans-serif; }
-
-.header-bar {
-    height:150px;
-    background:#DDA15E;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
-.header-bar h1 {
-    font-family:'Merriweather', serif;
-    font-size:32px;
-}
-
-.centered-image {
-    max-width:700px;
-    width:80%;
-    margin:40px auto;
-    display:block;
-}
-
-.score-section {
-    max-width:1000px;
-    width:90%;
-    margin:20px auto 40px auto;
-}
-
-.team-inputs {
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:10px;
-    margin-bottom:15px;
-}
-
-.team-inputs input { padding:8px; }
-
-button {
-    padding:8px 12px;
-    background:#DDA15E;
-    border:none;
-    cursor:pointer;
-    font-weight:bold;
-    margin:5px 0;
-}
+body { font-family:'Roboto', sans-serif; margin:0; display:flex; flex-direction:column; min-height:100vh; }
+.header { background:#DDA15E; padding:20px; text-align:center; font-family:'Merriweather', serif; }
+.container { width:90%; max-width:1000px; margin:auto; }
+.scoreboard { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:15px; margin-top:20px; }
+.team-card { background:#f4f4f4; padding:15px; border-radius:10px; text-align:center; }
+.team-card.winner { background:#c8e6c9; transform:scale(1.05); }
+button { padding:6px 10px; margin:5px; border:none; background:#DDA15E; cursor:pointer; font-weight:bold; }
 button:hover { background:#c68c4f; }
-
-.scoreboard {
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:15px;
-    margin-top:20px;
-}
-
-.team-card {
-    background:#f4f4f4;
-    padding:15px;
-    border-radius:10px;
-    text-align:center;
-    transition:0.3s;
-}
-
-.team-card.winner {
-    background:#c8e6c9;
-    transform:scale(1.05);
-}
-
-.points-controls input {
-    width:60px;
-    padding:5px;
-    text-align:center;
-}
-
-.footer-bar {
-    margin-top:auto;
-    height:120px;
-    background:#DDA15E;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
-
-@media(max-width:768px){
-    .header-bar h1 { font-size:22px; }
-}
+.hidden { display:none; }
+.footer { margin-top:auto; padding:20px; background:#DDA15E; text-align:center; }
 </style>
 </head>
-
 <body>
 
-<div class="header-bar">
-    <h1>Tour de Preznev</h1>
+<div class="header">
+<h1>Tour de Preznev</h1>
 </div>
 
-<div class="score-section">
-    <h2>Joukkueiden tulosseuranta </h2>
+<div class="container">
 
-    <div class="team-inputs">
-        <input type="text" id="team1" placeholder="Joukkue 1 nimi">
-        <input type="text" id="team2" placeholder="Joukkue 2 nimi">
-        <input type="text" id="team3" placeholder="Joukkue 3 nimi">
-        <input type="text" id="team4" placeholder="Joukkue 4 nimi">
-    </div>
-
-    <button onclick="window.createScoreboard()">Aloita tulosseuranta</button>
-    <button onclick="window.resetScores()">Nollaa pisteet</button>
-
-    <div id="scoreboard" class="scoreboard"></div>
+<!-- LOGIN -->
+<div id="loginBox">
+    <h3>Admin kirjautuminen</h3>
+    <input type="email" id="email" placeholder="Sähköposti"><br>
+    <input type="password" id="password" placeholder="Salasana"><br>
+    <button onclick="login()">Kirjaudu</button>
+    <p id="loginError" style="color:red;"></p>
 </div>
 
-<div class="footer-bar">
-    <h3>Copyright 2025</h3>
+<!-- ADMIN CONTROLS -->
+<div id="adminControls" class="hidden">
+    <h3>Admin hallinta</h3>
+    <input type="text" id="team1" placeholder="Joukkue 1">
+    <input type="text" id="team2" placeholder="Joukkue 2">
+    <input type="text" id="team3" placeholder="Joukkue 3">
+    <input type="text" id="team4" placeholder="Joukkue 4">
+    <br>
+    <button onclick="createGame()">Aloita peli</button>
+    <button onclick="resetScores()">Nollaa pisteet</button>
+    <button onclick="logout()">Kirjaudu ulos</button>
 </div>
 
-<!-- FIREBASE MODULE SCRIPT -->
+<div id="scoreboard" class="scoreboard"></div>
+
+</div>
+
+<div class="footer">Copyright @kipsipaavi 2026</div>
+
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCruKQXd8WPGeEbifcgiCa9o09wC0Wehfo",
@@ -140,83 +75,107 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const auth = getAuth(app);
 
 let teams = [];
+let isAdmin = false;
 
-/* ======== LIVE KUUNTELU ======== */
-onValue(ref(database, "scoreData"), (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-        teams = data;
-        renderScoreboard();
+/* ===== AUTH ===== */
+window.login = function(){
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    signInWithEmailAndPassword(auth, email, password)
+        .catch(error => {
+            document.getElementById("loginError").innerText = "Kirjautuminen epäonnistui";
+        });
+}
+
+window.logout = function(){
+    signOut(auth);
+}
+
+onAuthStateChanged(auth, user => {
+    if(user){
+        isAdmin = true;
+        document.getElementById("loginBox").classList.add("hidden");
+        document.getElementById("adminControls").classList.remove("hidden");
+    } else {
+        isAdmin = false;
+        document.getElementById("loginBox").classList.remove("hidden");
+        document.getElementById("adminControls").classList.add("hidden");
     }
 });
 
-/* ======== TALLENNUS ======== */
-function saveToDatabase() {
-    set(ref(database, "scoreData"), teams);
+/* ===== DATABASE LISTENER ===== */
+onValue(ref(database,"gameData"), snapshot=>{
+    const data = snapshot.val();
+    if(!data) return;
+    teams = data;
+    render();
+});
+
+/* ===== ADMIN ACTIONS ===== */
+window.createGame = function(){
+    if(!isAdmin) return;
+
+    teams = [
+        {name:team1.value, score:0},
+        {name:team2.value, score:0},
+        {name:team3.value, score:0},
+        {name:team4.value, score:0}
+    ];
+
+    set(ref(database,"gameData"), teams);
 }
 
-/* ======== LUONTI ======== */
-window.createScoreboard = function() {
-    teams = [];
-    for (let i = 1; i <= 4; i++) {
-        const name = document.getElementById("team" + i).value || "Joukkue " + i;
-        teams.push({ name: name, score: 0 });
-    }
-    saveToDatabase();
-};
+window.resetScores = function(){
+    if(!isAdmin) return;
+    teams.forEach(t=>t.score=0);
+    set(ref(database,"gameData"), teams);
+}
 
-/* ======== RENDER ======== */
-function renderScoreboard() {
+window.addPoint = function(index){
+    if(!isAdmin) return;
+    teams[index].score++;
+    set(ref(database,"gameData"), teams);
+}
+
+window.removePoint = function(index){
+    if(!isAdmin) return;
+    if(teams[index].score>0) teams[index].score--;
+    set(ref(database,"gameData"), teams);
+}
+
+/* ===== RENDER ===== */
+function render(){
     const board = document.getElementById("scoreboard");
-    board.innerHTML = "";
+    board.innerHTML="";
 
     teams.sort((a,b)=>b.score-a.score);
-    const highest = Math.max(...teams.map(t=>t.score));
+    const max = Math.max(...teams.map(t=>t.score));
 
     teams.forEach((team,index)=>{
-        const card = document.createElement("div");
-        card.className = "team-card";
-        if(team.score===highest && highest>0){
-            card.classList.add("winner");
+        const card=document.createElement("div");
+        card.className="team-card";
+        if(team.score===max && max>0) card.classList.add("winner");
+
+        let controls="";
+        if(isAdmin){
+            controls=`<br>
+                <button onclick="addPoint(${index})">+1</button>
+                <button onclick="removePoint(${index})">-1</button>`;
         }
 
-        card.innerHTML = `
+        card.innerHTML=`
             <h3>${team.name}</h3>
             <p>Pisteet: ${team.score}</p>
-            <div class="points-controls">
-                <input type="number" id="points${index}" value="1" min="1">
-                <br>
-                <button onclick="addPoints(${index})">Lisää</button>
-                <button onclick="subtractPoints(${index})">Vähennä</button>
-            </div>
+            ${controls}
         `;
-
         board.appendChild(card);
     });
 }
 
-/* ======== PISTEET ======== */
-window.addPoints = function(index){
-    const amount = parseInt(document.getElementById("points"+index).value) || 1;
-    teams[index].score += amount;
-    saveToDatabase();
-};
-
-window.subtractPoints = function(index){
-    const amount = parseInt(document.getElementById("points"+index).value) || 1;
-    teams[index].score -= amount;
-    if(teams[index].score < 0) teams[index].score = 0;
-    saveToDatabase();
-};
-
-window.resetScores = function(){
-    teams.forEach(t=>t.score=0);
-    saveToDatabase();
-};
-
 </script>
-
 </body>
 </html>
