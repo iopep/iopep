@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tour de Preznev</title>
+<title>Suomalaiset antikvariaatit - Liveseuranta</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 
 <style>
@@ -16,11 +17,10 @@ body { display:flex; flex-direction:column; min-height:100vh; font-family:'Robot
     display:flex;
     justify-content:center;
     align-items:center;
-    position:relative;
 }
 .header-bar h1 {
     font-family:'Merriweather', serif;
-    font-size:36px;
+    font-size:32px;
 }
 
 .centered-image {
@@ -43,9 +43,7 @@ body { display:flex; flex-direction:column; min-height:100vh; font-family:'Robot
     margin-bottom:15px;
 }
 
-.team-inputs input {
-    padding:8px;
-}
+.team-inputs input { padding:8px; }
 
 button {
     padding:8px 12px;
@@ -55,7 +53,6 @@ button {
     font-weight:bold;
     margin:5px 0;
 }
-
 button:hover { background:#c68c4f; }
 
 .scoreboard {
@@ -78,10 +75,6 @@ button:hover { background:#c68c4f; }
     transform:scale(1.05);
 }
 
-.points-controls {
-    margin-top:10px;
-}
-
 .points-controls input {
     width:60px;
     padding:5px;
@@ -98,7 +91,7 @@ button:hover { background:#c68c4f; }
 }
 
 @media(max-width:768px){
-    .header-bar h1 { font-size:24px; }
+    .header-bar h1 { font-size:22px; }
 }
 </style>
 </head>
@@ -106,10 +99,13 @@ button:hover { background:#c68c4f; }
 <body>
 
 <div class="header-bar">
-    <h1>Tour de Preznev</h1>
+    <h1>Suomalaiset antikvariaatit - Liveseuranta</h1>
 </div>
+
+<img src="vanhat_kirjat.jpg" class="centered-image">
+
 <div class="score-section">
-    <h2>Joukkueiden tulosseuranta</h2>
+    <h2>Joukkueiden tulosseuranta (LIVE)</h2>
 
     <div class="team-inputs">
         <input type="text" id="team1" placeholder="Joukkue 1 nimi">
@@ -118,41 +114,73 @@ button:hover { background:#c68c4f; }
         <input type="text" id="team4" placeholder="Joukkue 4 nimi">
     </div>
 
-    <button onclick="createScoreboard()">Aloita tulosseuranta</button>
-    <button onclick="resetScores()">Nollaa pisteet</button>
+    <button onclick="window.createScoreboard()">Aloita tulosseuranta</button>
+    <button onclick="window.resetScores()">Nollaa pisteet</button>
 
     <div id="scoreboard" class="scoreboard"></div>
 </div>
 
 <div class="footer-bar">
-    <h3>Copyright @kipsipaavi 2026</h3>
+    <h3>Copyright 2025</h3>
 </div>
 
-<script>
+<!-- FIREBASE MODULE SCRIPT -->
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCruKQXd8WPGeEbifcgiCa9o09wC0Wehfo",
+  authDomain: "liveseuranta-f9988.firebaseapp.com",
+  databaseURL: "https://liveseuranta-f9988-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "liveseuranta-f9988",
+  storageBucket: "liveseuranta-f9988.firebasestorage.app",
+  messagingSenderId: "414199918",
+  appId: "1:414199918:web:b3437550d9a8a91bd8367f"
+};
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
 let teams = [];
 
-function createScoreboard() {
+/* ======== LIVE KUUNTELU ======== */
+onValue(ref(database, "scoreData"), (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+        teams = data;
+        renderScoreboard();
+    }
+});
+
+/* ======== TALLENNUS ======== */
+function saveToDatabase() {
+    set(ref(database, "scoreData"), teams);
+}
+
+/* ======== LUONTI ======== */
+window.createScoreboard = function() {
     teams = [];
     for (let i = 1; i <= 4; i++) {
         const name = document.getElementById("team" + i).value || "Joukkue " + i;
         teams.push({ name: name, score: 0 });
     }
-    saveToStorage();
-    renderScoreboard();
-}
+    saveToDatabase();
+};
 
+/* ======== RENDER ======== */
 function renderScoreboard() {
     const board = document.getElementById("scoreboard");
     board.innerHTML = "";
 
-    teams.sort((a, b) => b.score - a.score);
+    teams.sort((a,b)=>b.score-a.score);
+    const highest = Math.max(...teams.map(t=>t.score));
 
-    const highestScore = Math.max(...teams.map(t => t.score));
-
-    teams.forEach((team, index) => {
+    teams.forEach((team,index)=>{
         const card = document.createElement("div");
         card.className = "team-card";
-        if (team.score === highestScore && highestScore > 0) {
+        if(team.score===highest && highest>0){
             card.classList.add("winner");
         }
 
@@ -171,40 +199,25 @@ function renderScoreboard() {
     });
 }
 
-function addPoints(index) {
-    const amount = parseInt(document.getElementById("points" + index).value) || 1;
+/* ======== PISTEET ======== */
+window.addPoints = function(index){
+    const amount = parseInt(document.getElementById("points"+index).value) || 1;
     teams[index].score += amount;
-    saveToStorage();
-    renderScoreboard();
-}
+    saveToDatabase();
+};
 
-function subtractPoints(index) {
-    const amount = parseInt(document.getElementById("points" + index).value) || 1;
+window.subtractPoints = function(index){
+    const amount = parseInt(document.getElementById("points"+index).value) || 1;
     teams[index].score -= amount;
-    if (teams[index].score < 0) teams[index].score = 0;
-    saveToStorage();
-    renderScoreboard();
-}
+    if(teams[index].score < 0) teams[index].score = 0;
+    saveToDatabase();
+};
 
-function resetScores() {
-    teams.forEach(team => team.score = 0);
-    saveToStorage();
-    renderScoreboard();
-}
+window.resetScores = function(){
+    teams.forEach(t=>t.score=0);
+    saveToDatabase();
+};
 
-function saveToStorage() {
-    localStorage.setItem("scoreData", JSON.stringify(teams));
-}
-
-function loadFromStorage() {
-    const data = localStorage.getItem("scoreData");
-    if (data) {
-        teams = JSON.parse(data);
-        renderScoreboard();
-    }
-}
-
-window.onload = loadFromStorage;
 </script>
 
 </body>
