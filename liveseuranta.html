@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Tour de Preznev" />
+  <meta name="description" content="Tour de Preznev - liveseuranta (LIVE)" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
-  <title>Tour de Preznev</title>
+  <title>Tour de Preznev — Liveseuranta (LIVE)</title>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -181,7 +181,6 @@
     }
     .team-actions .btn { padding: 10px 14px; }
 
-    .hint { font-size: 13px; opacity: .75; margin-top: 14px; }
     .status { font-size: 13px; opacity: .85; margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 
     .admin-box {
@@ -209,7 +208,7 @@
       font-size: 12px;
     }
 
-    /* ✅ MUUTOS: Kun ei-admin: piilota VAIN muokkaus-UI (login saa näkyä) */
+    /* Kun ei-admin: piilota VAIN muokkaus-UI (login saa näkyä) */
     .readonly .admin-controls { display: none !important; }
     .readonly .team-actions { display: none !important; }
 
@@ -244,6 +243,10 @@
 
       .grid { grid-template-columns: 1fr; }
       .team-score { font-size: 30px; }
+
+      /* ✅ MUUTOS: mobiilissa footer puolikkaan korkuiseksi */
+      .footer-bar { height: 100px; }
+      .footer-bar h1 { font-size: 16px; }
     }
   </style>
 </head>
@@ -304,7 +307,7 @@
 
       <div id="teamsGrid" class="grid"></div>
 
-      <div class="hint">Vinkki: admin syöttää “3” ja painaa + tai −.</div>
+      <!-- ✅ MUUTOS: poistettu ohjeteksti kokonaan -->
       <div id="status" class="status"><span id="conn">Yhdistetään…</span></div>
     </section>
   </main>
