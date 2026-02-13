@@ -331,7 +331,7 @@
         <div>
           <h2>Urheilukisan pisteseuranta</h2>
           <div class="meta">
-            Lisää max 4 joukkuetta. Pisteet päivittyvät heti ja säilyvät selaimessa.
+            Lisää joukkueita vapaasti. Pisteet päivittyvät heti ja säilyvät selaimessa.
           </div>
         </div>
 
@@ -358,7 +358,7 @@
   </div>
 
   <script>
-    /* ---- Hamburger (sun alkuperäinen) ---- */
+    /* ---- Hamburger ---- */
     function toggleMenu() {
       var navMenu = document.getElementById("nav-menu");
       navMenu.style.display = (navMenu.style.display === "flex") ? "none" : "flex";
@@ -379,7 +379,6 @@
 
     /* ---- Pisteseuranta ---- */
     const STORAGE_KEY = "tdp_scoreboard_v1";
-    const MAX_TEAMS = 4;
 
     const teamNameInput = document.getElementById("teamNameInput");
     const addTeamBtn = document.getElementById("addTeamBtn");
@@ -419,6 +418,11 @@
     }
 
     function render() {
+      /* --- TURVAVYÖ: pisteet ei saa olla koskaan negatiivisia --- */
+      state.teams.forEach(t => {
+        t.points = Math.max(0, clampInt(Number(t.points)));
+      });
+
       teamsGrid.innerHTML = "";
 
       state.teams.forEach((team) => {
@@ -478,7 +482,8 @@
         plusBtn.addEventListener("click", () => {
           const delta = clampInt(Number(deltaInput.value));
           if (delta <= 0) return;
-          team.points += delta;
+
+          team.points = Math.max(0, team.points + delta);
           saveState();
           render();
         });
@@ -486,7 +491,8 @@
         minusBtn.addEventListener("click", () => {
           const delta = clampInt(Number(deltaInput.value));
           if (delta <= 0) return;
-          team.points -= delta;
+
+          team.points = Math.max(0, team.points - delta);
           saveState();
           render();
         });
@@ -502,15 +508,15 @@
         teamsGrid.appendChild(card);
       });
 
-      addTeamBtn.disabled = state.teams.length >= MAX_TEAMS;
+      /* --- EI RAJOITUSTA JOUKKUEIDEN MÄÄRÄLLE --- */
+      addTeamBtn.disabled = false;
+
       updateTotal();
     }
 
     function addTeam(name) {
       const trimmed = (name || "").trim();
       if (!trimmed) return;
-
-      if (state.teams.length >= MAX_TEAMS) return;
 
       state.teams.push({
         id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
