@@ -110,6 +110,7 @@
       box-shadow: 0 10px 24px rgba(0,0,0,.08);
       padding: 22px;
     }
+
     .scoreboard-header {
       display: flex;
       justify-content: space-between;
@@ -141,6 +142,7 @@
       outline: none;
       font-size: 14px;
     }
+
     .btn {
       border: none;
       border-radius: 10px;
@@ -154,7 +156,6 @@
     .btn:active { transform: translateY(1px); }
     .btn.secondary { background: #eee; font-weight: 600; }
     .btn.danger { background: #ffdddd; }
-    .btn:disabled { opacity: .5; cursor: not-allowed; }
 
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
     .team-card {
@@ -246,9 +247,7 @@
       <div class="scoreboard-header">
         <div>
           <h2>Urheilukisan pisteseuranta (LIVE)</h2>
-          <div class="meta">
-            Tämä näkymä on yhteinen kaikille. Muutokset näkyvät reaaliajassa.
-          </div>
+          <div class="meta">Kaikki näkevät saman tilanteen reaaliajassa (Realtime Database).</div>
         </div>
 
         <div class="controls-top">
@@ -271,19 +270,16 @@
     <h1>Copyright @kipsipaavi 2026</h1>
   </div>
 
-  <!-- Firebase (modular) -->
   <script type="module">
     /* ---- Hamburger ---- */
     window.toggleMenu = function toggleMenu() {
       var navMenu = document.getElementById("nav-menu");
       navMenu.style.display = (navMenu.style.display === "flex") ? "none" : "flex";
     }
-
     window.addEventListener('resize', function() {
       var navMenu = document.getElementById("nav-menu");
       if (window.innerWidth > 768) navMenu.style.display = "none";
     });
-
     window.addEventListener('click', function(event) {
       var navMenu = document.getElementById("nav-menu");
       var hamburgerMenu = document.querySelector(".hamburger-menu");
@@ -292,29 +288,28 @@
       }
     });
 
-    /* ---- Firebase / Firestore ----
-       Web SDK: käytä modular importteja (Firebase Web setup) :contentReference[oaicite:1]{index=1}
+    /* ---- Firebase RTDB (modular + CDN) ----
+       RTDB web start + read/write docs: :contentReference[oaicite:2]{index=2}
+       Alternative setup (CDN module): :contentReference[oaicite:3]{index=3}
     */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import {
-      getFirestore,
-      collection,
-      addDoc,
-      doc,
-      deleteDoc,
-      serverTimestamp,
-      onSnapshot,
-      orderBy,
-      query,
-      getDocs,
-      writeBatch,
-      runTransaction
-    } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+      getDatabase,
+      ref,
+      push,
+      set,
+      onValue,
+      remove,
+      runTransaction,
+      get,
+      update
+    } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-    // 1) VAIHDA nämä omiksi (Firebase Console -> Project settings -> Your apps -> Firebase SDK snippet)
+    // VAIHDA omiksi (Firebase Console -> Project settings -> Your apps -> Web app config)
     const firebaseConfig = {
       apiKey: "PASTE_YOUR_API_KEY",
       authDomain: "PASTE_YOUR_AUTH_DOMAIN",
+      databaseURL: "PASTE_YOUR_DATABASE_URL",   // RTDB: tärkeä
       projectId: "PASTE_YOUR_PROJECT_ID",
       storageBucket: "PASTE_YOUR_STORAGE_BUCKET",
       messagingSenderId: "PASTE_YOUR_SENDER_ID",
@@ -322,11 +317,10 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const db = getDatabase(app);
 
-    // Firestore polku: /scoreboards/{boardId}/teams/{teamId}
-    const boardId = "default"; // halutessasi tee eri kisoille eri id
-    const teamsCol = collection(db, "scoreboards", boardId, "teams");
+    const boardId = "default";
+    const teamsRoot = ref(db, `scoreboards/${boardId}/teams`);
 
     const teamNameInput = document.getElementById("teamNameInput");
     const addTeamBtn = document.getElementById("addTeamBtn");
@@ -339,28 +333,23 @@
       return Math.trunc(n);
     }
 
-    // Reaaliaikainen kuuntelu: kaikki näkee samat pisteet heti
-    const q = query(teamsCol, orderBy("createdAt", "asc"));
-    const unsubscribe = onSnapshot(
-      q,
-      (snap) => {
-        const teams = [];
-        snap.forEach((d) => {
-          const data = d.data() || {};
-          teams.push({
-            id: d.id,
-            name: String(data.name || ""),
-            points: Math.max(0, clampInt(Number(data.points || 0)))
-          });
-        });
-        render(teams);
-        statusEl.textContent = "Yhteys OK ✅";
-      },
-      (err) => {
-        console.error(err);
-        statusEl.textContent = "Virhe yhteydessä Firestoreen ❌ (katso console)";
-      }
-    );
+    // Reaaliaikainen kuuntelu: snapshot koko teams-puusta
+    // onValue: kuuntele muutoksia reaaliajassa :contentReference[oaicite:4]{index=4}
+    onValue(teamsRoot, (snap) => {
+      const val = snap.val() || {};
+      const teams = Object.entries(val).map(([id, data]) => ({
+        id,
+        name: String(data?.name || ""),
+        points: Math.max(0, clampInt(Number(data?.points || 0))),
+        createdAt: Number(data?.createdAt || 0)
+      })).sort((a, b) => a.createdAt - b.createdAt);
+
+      render(teams);
+      statusEl.textContent = "Yhteys OK ✅";
+    }, (err) => {
+      console.error(err);
+      statusEl.textContent = "Virhe yhteydessä RTDB:hen ❌ (katso console)";
+    });
 
     function render(teams) {
       teamsGrid.innerHTML = "";
@@ -419,41 +408,36 @@
         actions.appendChild(deltaWrap);
         actions.appendChild(removeBtn);
 
-        // Pisteiden muutos tehdään TRANSAKTIOLLA, jotta samaan aikaan tehtävät klikkaukset eivät riko tilaa.
-        // Transaktiot: :contentReference[oaicite:2]{index=2}
-        async function updatePoints(teamId, deltaSigned) {
+        const teamRef = ref(db, `scoreboards/${boardId}/teams/${team.id}`);
+
+        // Turvallinen pistepäivitys transaktiolla (ei kilpajuoksua)
+        // RTDB transactions: runTransaction :contentReference[oaicite:5]{index=5}
+        async function updatePoints(deltaSigned) {
           const delta = clampInt(Number(deltaSigned));
           if (delta === 0) return;
 
-          const ref = doc(db, "scoreboards", boardId, "teams", teamId);
-
-          await runTransaction(db, async (tx) => {
-            const snap = await tx.get(ref);
-            if (!snap.exists()) return;
-            const current = Math.max(0, clampInt(Number(snap.data()?.points || 0)));
-            const next = Math.max(0, current + delta); // EI MIINUKSELLE
-            tx.update(ref, { points: next });
+          await runTransaction(teamRef, (current) => {
+            if (current == null) return current;
+            const cur = Math.max(0, clampInt(Number(current.points || 0)));
+            const next = Math.max(0, cur + delta); // EI MIINUKSELLE
+            return { ...current, points: next };
           });
         }
 
         plusBtn.addEventListener("click", async () => {
           const delta = clampInt(Number(deltaInput.value));
           if (delta <= 0) return;
-          try { await updatePoints(team.id, +delta); } catch (e) { console.error(e); }
+          try { await updatePoints(+delta); } catch (e) { console.error(e); }
         });
 
         minusBtn.addEventListener("click", async () => {
           const delta = clampInt(Number(deltaInput.value));
           if (delta <= 0) return;
-          try { await updatePoints(team.id, -delta); } catch (e) { console.error(e); }
+          try { await updatePoints(-delta); } catch (e) { console.error(e); }
         });
 
         removeBtn.addEventListener("click", async () => {
-          try {
-            await deleteDoc(doc(db, "scoreboards", boardId, "teams", team.id));
-          } catch (e) {
-            console.error(e);
-          }
+          try { await remove(teamRef); } catch (e) { console.error(e); }
         });
 
         card.appendChild(top);
@@ -466,17 +450,16 @@
       const trimmed = (name || "").trim();
       if (!trimmed) return;
 
-      try {
-        await addDoc(teamsCol, {
-          name: trimmed,
-          points: 0,
-          createdAt: serverTimestamp()
-        });
-        teamNameInput.value = "";
-        teamNameInput.focus();
-      } catch (e) {
-        console.error(e);
-      }
+      // push() luo uniikin avaimen
+      const newRef = push(teamsRoot);
+      await set(newRef, {
+        name: trimmed,
+        points: 0,
+        createdAt: Date.now()
+      });
+
+      teamNameInput.value = "";
+      teamNameInput.focus();
     }
 
     addTeamBtn.addEventListener("click", () => addTeam(teamNameInput.value));
@@ -484,14 +467,10 @@
       if (e.key === "Enter") addTeam(teamNameInput.value);
     });
 
-    // Nollaa kaikki = poista kaikki joukkueet (batch delete)
-    // Batched writes: :contentReference[oaicite:3]{index=3}
+    // Nollaa kaikki = poista koko teams-puu (aseta null)
     resetBtn.addEventListener("click", async () => {
       try {
-        const snap = await getDocs(teamsCol);
-        const batch = writeBatch(db);
-        snap.forEach((d) => batch.delete(d.ref));
-        await batch.commit();
+        await set(teamsRoot, null); // tyhjentää subtree:n
       } catch (e) {
         console.error(e);
       }
@@ -499,4 +478,3 @@
   </script>
 </body>
 </html>
-
