@@ -180,10 +180,6 @@
     .btn.danger {
       background: #ffdddd;
     }
-    .btn:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
 
     .grid {
       display: grid;
@@ -244,27 +240,10 @@
       padding: 10px 14px;
     }
 
-    .footer-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 18px;
-      padding-top: 14px;
-      border-top: 1px solid #f0f0f0;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .total {
-      font-size: 16px;
-    }
-    .total strong {
-      font-size: 20px;
-    }
-
     .hint {
       font-size: 13px;
       opacity: .75;
+      margin-top: 14px;
     }
 
     /* Footer */
@@ -346,15 +325,12 @@
 
       <div id="teamsGrid" class="grid"></div>
 
-      <div class="footer-row">
-        <div class="total">Yhteispisteet: <strong id="totalPoints">0</strong></div>
-        <div class="hint">Vinkki: syötä esimerkiksi “3” ja paina + tai −.</div>
-      </div>
+      <div class="hint">Vinkki: syötä esimerkiksi “3” ja paina + tai −.</div>
     </section>
   </main>
 
   <div class="footer-bar">
-    <h1>Copyright @kipsipaavi 2026</h1>
+    <h1>Copyright Pojat© 2026</h1>
   </div>
 
   <script>
@@ -384,7 +360,6 @@
     const addTeamBtn = document.getElementById("addTeamBtn");
     const resetBtn = document.getElementById("resetBtn");
     const teamsGrid = document.getElementById("teamsGrid");
-    const totalPointsEl = document.getElementById("totalPoints");
 
     let state = loadState();
 
@@ -407,14 +382,6 @@
     function clampInt(n) {
       if (!Number.isFinite(n)) return 0;
       return Math.trunc(n);
-    }
-
-    function totalPoints() {
-      return state.teams.reduce((sum, t) => sum + (t.points || 0), 0);
-    }
-
-    function updateTotal() {
-      totalPointsEl.textContent = String(totalPoints());
     }
 
     function render() {
@@ -507,11 +474,6 @@
         card.appendChild(actions);
         teamsGrid.appendChild(card);
       });
-
-      /* --- EI RAJOITUSTA JOUKKUEIDEN MÄÄRÄLLE --- */
-      addTeamBtn.disabled = false;
-
-      updateTotal();
     }
 
     function addTeam(name) {
