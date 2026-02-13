@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Tour de Preznev - liveseuranta (LIVE)" />
+  <meta name="description" content="Tour de Preznev - sivupohja" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
-  <title>Tour de Preznev — Liveseuranta (LIVE)</title>
+  <title>Tour de Preznev — Sivupohja</title>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -208,9 +208,8 @@
       font-size: 12px;
     }
 
-    /* Kun ei-admin: piilota VAIN muokkaus-UI (login saa näkyä) */
-    .readonly .admin-controls { display: none !important; }
-    .readonly .team-actions { display: none !important; }
+    /* (Jätetty tyyliksi, vaikka toiminnallisuus poistettu) */
+    .admin-controls { }
 
     .footer-bar {
       width: 100%;
@@ -244,14 +243,13 @@
       .grid { grid-template-columns: 1fr; }
       .team-score { font-size: 30px; }
 
-      /* ✅ MUUTOS: mobiilissa footer puolikkaan korkuiseksi */
       .footer-bar { height: 100px; }
       .footer-bar h1 { font-size: 16px; }
     }
   </style>
 </head>
 
-<body class="readonly">
+<body>
   <div class="header-bar">
     <h1>Tour de Preznev</h1>
     <div class="hamburger-menu" onclick="toggleMenu()">&#9776;</div>
@@ -274,41 +272,67 @@
   </nav>
 
   <main class="main">
-    <section class="scoreboard" aria-label="Pisteseuranta">
+    <section class="scoreboard" aria-label="Sisältöalue">
       <div class="scoreboard-header">
         <div>
-          <h2>Urheilukisan pisteseuranta (LIVE)</h2>
-          <div class="meta">Katsojat: read-only. Admin voi lisätä joukkueita ja muuttaa pisteitä.</div>
+          <h2>Sisältö</h2>
+          <div class="meta">Tässä on sivun asettelu ja tyylit ilman toiminnallisuuksia.</div>
         </div>
 
         <div class="controls-top">
-          <!-- Admin login (näkyy aina) -->
           <div class="admin-box">
             <div class="admin-row">
-              <input id="adminEmail" type="email" placeholder="Admin email" autocomplete="username" />
-              <input id="adminPass" type="password" placeholder="Admin salasana" autocomplete="current-password" />
+              <input type="email" placeholder="Sähköposti" />
+              <input type="password" placeholder="Salasana" />
             </div>
             <div class="admin-row">
-              <button id="loginBtn" class="btn" type="button">Kirjaudu</button>
-              <button id="logoutBtn" class="btn secondary" type="button" disabled>Kirjaudu ulos</button>
-              <span id="rolePill" class="pill">Rooli: katsoja</span>
+              <button class="btn" type="button">Kirjaudu</button>
+              <button class="btn secondary" type="button" disabled>Kirjaudu ulos</button>
+              <span class="pill">Rooli: katsoja</span>
             </div>
-            <div id="authError" class="meta" style="color:#b00020;"></div>
           </div>
 
-          <!-- Admin controls (piilossa katsojilta) -->
           <div class="add-team admin-controls">
-            <input id="teamNameInput" type="text" maxlength="30" placeholder="Joukkueen nimi…" />
-            <button id="addTeamBtn" class="btn" type="button" disabled>Lisää</button>
+            <input type="text" maxlength="30" placeholder="Kenttä…" />
+            <button class="btn" type="button" disabled>Toiminto</button>
           </div>
-          <button id="resetBtn" class="btn secondary admin-controls" type="button" disabled>Nollaa kaikki</button>
+          <button class="btn secondary admin-controls" type="button" disabled>Toinen toiminto</button>
         </div>
       </div>
 
-      <div id="teamsGrid" class="grid"></div>
+      <div class="grid" aria-label="Korttien ruudukko">
+        <div class="team-card">
+          <div class="team-top">
+            <div class="team-name">Esimerkkikortti</div>
+            <div class="team-score">0</div>
+          </div>
+          <div class="team-actions">
+            <div class="delta">
+              <input type="number" value="1" />
+              <button class="btn" type="button">+</button>
+              <button class="btn secondary" type="button">−</button>
+            </div>
+            <button class="btn danger" type="button">Poista</button>
+          </div>
+        </div>
 
-      <!-- ✅ MUUTOS: poistettu ohjeteksti kokonaan -->
-      <div id="status" class="status"><span id="conn">Yhdistetään…</span></div>
+        <div class="team-card">
+          <div class="team-top">
+            <div class="team-name">Toinen kortti</div>
+            <div class="team-score">12</div>
+          </div>
+          <div class="team-actions">
+            <div class="delta">
+              <input type="number" value="3" />
+              <button class="btn" type="button">+</button>
+              <button class="btn secondary" type="button">−</button>
+            </div>
+            <button class="btn danger" type="button">Poista</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="status"><span>Valmis ✅</span></div>
     </section>
   </main>
 
@@ -316,252 +340,31 @@
     <h1>Copyright @kipsipaavi 2026</h1>
   </div>
 
-  <script type="module">
-    /* ---- Hamburger ---- */
-    window.toggleMenu = function toggleMenu() {
-      const navMenu = document.getElementById("nav-menu");
-      navMenu.style.display = (navMenu.style.display === "flex") ? "none" : "flex";
+  <script>
+    // Vain valikon auki/kiinni -toiminto (layout/UI)
+    function toggleMenu() {
+      var navMenu = document.getElementById("nav-menu");
+      if (navMenu.style.display === "flex") {
+        navMenu.style.display = "none";
+      } else {
+        navMenu.style.display = "flex";
+      }
     }
+
     window.addEventListener('resize', function() {
-      const navMenu = document.getElementById("nav-menu");
-      if (window.innerWidth > 768) navMenu.style.display = "none";
-    });
-    window.addEventListener('click', function(event) {
-      const navMenu = document.getElementById("nav-menu");
-      const hamburgerMenu = document.querySelector(".hamburger-menu");
-      if (window.innerWidth <= 768 && !hamburgerMenu.contains(event.target) && !navMenu.contains(event.target)) {
+      var navMenu = document.getElementById("nav-menu");
+      if (window.innerWidth > 768) {
         navMenu.style.display = "none";
       }
     });
 
-    /* ---- Firebase RTDB + Auth (CDN-moduulit) ---- */
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getDatabase, ref, push, set, onValue, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-
-    // ✅ Sinun Firebase-konfigisi
-    const firebaseConfig = {
-      apiKey: "AIzaSyCbTAgtt33uHZKBvsubzRjo4YAao4y1J4I",
-      authDomain: "liveseuranta-2a0c2.firebaseapp.com",
-      databaseURL: "https://liveseuranta-2a0c2-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "liveseuranta-2a0c2",
-      storageBucket: "liveseuranta-2a0c2.firebasestorage.app",
-      messagingSenderId: "715089213388",
-      appId: "1:715089213388:web:0e829adb8bd60d92d70f69"
-    };
-
-    // Admin UID
-    const ADMIN_UID = "fUlubKLsafg9q6gfHbBvYQHWQu12";
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const auth = getAuth(app);
-
-    const boardId = "default";
-    const teamsRoot = ref(db, `scoreboards/${boardId}/teams`);
-
-    const bodyEl = document.body;
-
-    // UI refs
-    const teamNameInput = document.getElementById("teamNameInput");
-    const addTeamBtn = document.getElementById("addTeamBtn");
-    const resetBtn = document.getElementById("resetBtn");
-    const teamsGrid = document.getElementById("teamsGrid");
-    const connEl = document.getElementById("conn");
-
-    const adminEmail = document.getElementById("adminEmail");
-    const adminPass = document.getElementById("adminPass");
-    const loginBtn = document.getElementById("loginBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const rolePill = document.getElementById("rolePill");
-    const authError = document.getElementById("authError");
-
-    function clampInt(n) {
-      if (!Number.isFinite(n)) return 0;
-      return Math.trunc(n);
-    }
-
-    function setAdminMode(isAdmin) {
-      bodyEl.classList.toggle("readonly", !isAdmin);
-      rolePill.textContent = isAdmin ? "Rooli: admin" : "Rooli: katsoja";
-      addTeamBtn.disabled = !isAdmin;
-      resetBtn.disabled = !isAdmin;
-
-      // pieni UX-parannus
-      logoutBtn.disabled = !auth.currentUser;
-      loginBtn.disabled = !!auth.currentUser;
-    }
-
-    onAuthStateChanged(auth, (user) => {
-      authError.textContent = "";
-      const isAdmin = !!user && user.uid === ADMIN_UID;
-
-      if (user && !isAdmin) {
-        authError.textContent = "Kirjauduttu sisään, mutta tällä käyttäjällä ei ole admin-oikeuksia.";
-      }
-
-      setAdminMode(isAdmin);
-    });
-
-    loginBtn.addEventListener("click", async () => {
-      authError.textContent = "";
-      try {
-        await signInWithEmailAndPassword(auth, adminEmail.value.trim(), adminPass.value);
-      } catch (e) {
-        console.error(e);
-        authError.textContent = "Kirjautuminen epäonnistui. Tarkista email/salasana ja että Email/Password on päällä Firebase Authissa.";
+    window.addEventListener('click', function(event) {
+      var navMenu = document.getElementById("nav-menu");
+      var hamburgerMenu = document.querySelector(".hamburger-menu");
+      if (window.innerWidth <= 768 && !hamburgerMenu.contains(event.target) && !navMenu.contains(event.target)) {
+        navMenu.style.display = "none";
       }
     });
-
-    logoutBtn.addEventListener("click", async () => {
-      authError.textContent = "";
-      try { await signOut(auth); } catch (e) { console.error(e); }
-    });
-
-    onValue(teamsRoot, (snap) => {
-      const val = snap.val() || {};
-      const teams = Object.entries(val).map(([id, data]) => ({
-        id,
-        name: String(data?.name || ""),
-        points: Math.max(0, clampInt(Number(data?.points || 0))),
-        createdAt: Number(data?.createdAt || 0)
-      })).sort((a, b) => a.createdAt - b.createdAt);
-
-      render(teams);
-      connEl.textContent = "Yhteys OK ✅";
-    }, (err) => {
-      console.error(err);
-      connEl.textContent = "Virhe RTDB-yhteydessä ❌ (katso console)";
-    });
-
-    function render(teams) {
-      teamsGrid.innerHTML = "";
-
-      teams.forEach((team) => {
-        const card = document.createElement("div");
-        card.className = "team-card";
-
-        const top = document.createElement("div");
-        top.className = "team-top";
-
-        const name = document.createElement("div");
-        name.className = "team-name";
-        name.textContent = team.name;
-
-        const score = document.createElement("div");
-        score.className = "team-score";
-        score.textContent = String(team.points);
-
-        top.appendChild(name);
-        top.appendChild(score);
-
-        const actions = document.createElement("div");
-        actions.className = "team-actions";
-
-        const deltaWrap = document.createElement("div");
-        deltaWrap.className = "delta";
-
-        const deltaInput = document.createElement("input");
-        deltaInput.type = "number";
-        deltaInput.inputMode = "numeric";
-        deltaInput.value = "1";
-        deltaInput.min = "1";
-        deltaInput.step = "1";
-        deltaInput.setAttribute("aria-label", "Pisteiden muutos");
-
-        const plusBtn = document.createElement("button");
-        plusBtn.className = "btn";
-        plusBtn.type = "button";
-        plusBtn.textContent = "+";
-
-        const minusBtn = document.createElement("button");
-        minusBtn.className = "btn secondary";
-        minusBtn.type = "button";
-        minusBtn.textContent = "−";
-
-        deltaWrap.appendChild(deltaInput);
-        deltaWrap.appendChild(plusBtn);
-        deltaWrap.appendChild(minusBtn);
-
-        const removeBtn = document.createElement("button");
-        removeBtn.className = "btn danger";
-        removeBtn.type = "button";
-        removeBtn.textContent = "Poista joukkue";
-
-        actions.appendChild(deltaWrap);
-        actions.appendChild(removeBtn);
-
-        const teamRef = ref(db, `scoreboards/${boardId}/teams/${team.id}`);
-
-        async function updatePoints(deltaSigned) {
-          const user = auth.currentUser;
-          if (!user || user.uid !== ADMIN_UID) return;
-
-          const delta = clampInt(Number(deltaSigned));
-          if (delta === 0) return;
-
-          await runTransaction(teamRef, (current) => {
-            if (current == null) return current;
-            const cur = Math.max(0, clampInt(Number(current.points || 0)));
-            const next = Math.max(0, cur + delta);
-            return { ...current, points: next };
-          });
-        }
-
-        plusBtn.addEventListener("click", async () => {
-          const delta = clampInt(Number(deltaInput.value));
-          if (delta <= 0) return;
-          try { await updatePoints(+delta); } catch (e) { console.error(e); }
-        });
-
-        minusBtn.addEventListener("click", async () => {
-          const delta = clampInt(Number(deltaInput.value));
-          if (delta <= 0) return;
-          try { await updatePoints(-delta); } catch (e) { console.error(e); }
-        });
-
-        removeBtn.addEventListener("click", async () => {
-          const user = auth.currentUser;
-          if (!user || user.uid !== ADMIN_UID) return;
-          try { await remove(teamRef); } catch (e) { console.error(e); }
-        });
-
-        card.appendChild(top);
-        card.appendChild(actions);
-        teamsGrid.appendChild(card);
-      });
-    }
-
-    async function addTeam(name) {
-      const user = auth.currentUser;
-      if (!user || user.uid !== ADMIN_UID) return;
-
-      const trimmed = (name || "").trim();
-      if (!trimmed) return;
-
-      const newRef = push(teamsRoot);
-      await set(newRef, {
-        name: trimmed,
-        points: 0,
-        createdAt: Date.now()
-      });
-
-      teamNameInput.value = "";
-      teamNameInput.focus();
-    }
-
-    addTeamBtn.addEventListener("click", () => addTeam(teamNameInput.value));
-    teamNameInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") addTeam(teamNameInput.value);
-    });
-
-    resetBtn.addEventListener("click", async () => {
-      const user = auth.currentUser;
-      if (!user || user.uid !== ADMIN_UID) return;
-      try { await set(teamsRoot, null); } catch (e) { console.error(e); }
-    });
-
-    setAdminMode(false);
   </script>
 </body>
 </html>
