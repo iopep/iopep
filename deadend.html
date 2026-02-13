@@ -108,6 +108,22 @@
       padding: 22px;
     }
 
+    /* ✅ KUVA: responsiivinen + keskitetty */
+    .image-wrap{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+    .centered-image{
+      display: block;
+      width: 100%;
+      max-width: 700px;     /* rajoittaa desktopilla ettei veny liikaa */
+      height: auto;         /* säilyttää kuvasuhteen */
+      border-radius: 14px;  /* sopii kortin tyyliin */
+      object-fit: contain;  /* varmistus */
+    }
+
     /* Seuraavat tyylit ovat tallella pohjaa varten, vaikka sisältö olisi tyhjä */
     .wall-header {
       display: flex;
@@ -266,9 +282,8 @@
   </nav>
 
   <main class="main">
-    <!-- Tyhjä sisältöalue (vain layout + tyylit) -->
     <section class="scoreboard" aria-label="Sisältöalue">
-      <div>
+      <div class="image-wrap">
         <img src="paavi.jpg" alt="Habemus Papam!" class="centered-image">
       </div>
     </section>
@@ -292,7 +307,7 @@
     window.addEventListener('click', function(event) {
       var navMenu = document.getElementById("nav-menu");
       var hamburgerMenu = document.querySelector(".hamburger-menu");
-      if (window.innerWidth <= 768 && !hamburgerMenu.contains(event.target) && !navMenu.contains(event.target)) {
+      if (window.innerWidth <= 768 && hamburgerMenu && !hamburgerMenu.contains(event.target) && !navMenu.contains(event.target)) {
         navMenu.style.display = "none";
       }
     });
