@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
-  <title>Tour de Preznev — Sivupohja</title>
+  <title>Tour de Preznev</title>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -208,9 +208,6 @@
       font-size: 12px;
     }
 
-    /* (Jätetty tyyliksi, vaikka toiminnallisuus poistettu) */
-    .admin-controls { }
-
     .footer-bar {
       width: 100%;
       height: 200px;
@@ -272,68 +269,8 @@
   </nav>
 
   <main class="main">
-    <section class="scoreboard" aria-label="Sisältöalue">
-      <div class="scoreboard-header">
-        <div>
-          <h2>Sisältö</h2>
-          <div class="meta">Tässä on sivun asettelu ja tyylit ilman toiminnallisuuksia.</div>
-        </div>
-
-        <div class="controls-top">
-          <div class="admin-box">
-            <div class="admin-row">
-              <input type="email" placeholder="Sähköposti" />
-              <input type="password" placeholder="Salasana" />
-            </div>
-            <div class="admin-row">
-              <button class="btn" type="button">Kirjaudu</button>
-              <button class="btn secondary" type="button" disabled>Kirjaudu ulos</button>
-              <span class="pill">Rooli: katsoja</span>
-            </div>
-          </div>
-
-          <div class="add-team admin-controls">
-            <input type="text" maxlength="30" placeholder="Kenttä…" />
-            <button class="btn" type="button" disabled>Toiminto</button>
-          </div>
-          <button class="btn secondary admin-controls" type="button" disabled>Toinen toiminto</button>
-        </div>
-      </div>
-
-      <div class="grid" aria-label="Korttien ruudukko">
-        <div class="team-card">
-          <div class="team-top">
-            <div class="team-name">Esimerkkikortti</div>
-            <div class="team-score">0</div>
-          </div>
-          <div class="team-actions">
-            <div class="delta">
-              <input type="number" value="1" />
-              <button class="btn" type="button">+</button>
-              <button class="btn secondary" type="button">−</button>
-            </div>
-            <button class="btn danger" type="button">Poista</button>
-          </div>
-        </div>
-
-        <div class="team-card">
-          <div class="team-top">
-            <div class="team-name">Toinen kortti</div>
-            <div class="team-score">12</div>
-          </div>
-          <div class="team-actions">
-            <div class="delta">
-              <input type="number" value="3" />
-              <button class="btn" type="button">+</button>
-              <button class="btn secondary" type="button">−</button>
-            </div>
-            <button class="btn danger" type="button">Poista</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="status"><span>Valmis ✅</span></div>
-    </section>
+    <!-- Tyhjä sisältöalue (vain layout) -->
+    <section class="scoreboard" aria-label="Sisältöalue"></section>
   </main>
 
   <div class="footer-bar">
@@ -368,4 +305,5 @@
   </script>
 </body>
 </html>
+
 
