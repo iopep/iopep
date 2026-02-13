@@ -209,8 +209,8 @@
       font-size: 12px;
     }
 
-    /* Kun ei-admin: piilota muokkaus-UI */
-    .readonly .admin-only { display: none !important; }
+    /* ✅ MUUTOS: Kun ei-admin: piilota VAIN muokkaus-UI (login saa näkyä) */
+    .readonly .admin-controls { display: none !important; }
     .readonly .team-actions { display: none !important; }
 
     .footer-bar {
@@ -279,8 +279,8 @@
         </div>
 
         <div class="controls-top">
-          <!-- Admin login -->
-          <div class="admin-box admin-only">
+          <!-- Admin login (näkyy aina) -->
+          <div class="admin-box">
             <div class="admin-row">
               <input id="adminEmail" type="email" placeholder="Admin email" autocomplete="username" />
               <input id="adminPass" type="password" placeholder="Admin salasana" autocomplete="current-password" />
@@ -293,12 +293,12 @@
             <div id="authError" class="meta" style="color:#b00020;"></div>
           </div>
 
-          <!-- Admin controls -->
-          <div class="add-team admin-only">
+          <!-- Admin controls (piilossa katsojilta) -->
+          <div class="add-team admin-controls">
             <input id="teamNameInput" type="text" maxlength="30" placeholder="Joukkueen nimi…" />
             <button id="addTeamBtn" class="btn" type="button" disabled>Lisää</button>
           </div>
-          <button id="resetBtn" class="btn secondary admin-only" type="button" disabled>Nollaa kaikki</button>
+          <button id="resetBtn" class="btn secondary admin-controls" type="button" disabled>Nollaa kaikki</button>
         </div>
       </div>
 
@@ -347,7 +347,7 @@
       appId: "1:715089213388:web:0e829adb8bd60d92d70f69"
     };
 
-    // ❗ Vaihda tähän admin-käyttäjän UID (Firebase Console -> Authentication -> Users -> UID)
+    // Admin UID
     const ADMIN_UID = "fUlubKLsafg9q6gfHbBvYQHWQu12";
 
     const app = initializeApp(firebaseConfig);
@@ -383,17 +383,21 @@
       rolePill.textContent = isAdmin ? "Rooli: admin" : "Rooli: katsoja";
       addTeamBtn.disabled = !isAdmin;
       resetBtn.disabled = !isAdmin;
-      logoutBtn.disabled = !isAdmin;
+
+      // pieni UX-parannus
+      logoutBtn.disabled = !auth.currentUser;
+      loginBtn.disabled = !!auth.currentUser;
     }
 
-    // Auth state
     onAuthStateChanged(auth, (user) => {
       authError.textContent = "";
       const isAdmin = !!user && user.uid === ADMIN_UID;
-      setAdminMode(isAdmin);
+
       if (user && !isAdmin) {
         authError.textContent = "Kirjauduttu sisään, mutta tällä käyttäjällä ei ole admin-oikeuksia.";
       }
+
+      setAdminMode(isAdmin);
     });
 
     loginBtn.addEventListener("click", async () => {
@@ -402,7 +406,7 @@
         await signInWithEmailAndPassword(auth, adminEmail.value.trim(), adminPass.value);
       } catch (e) {
         console.error(e);
-        authError.textContent = "Kirjautuminen epäonnistui. Tarkista email/salasana.";
+        authError.textContent = "Kirjautuminen epäonnistui. Tarkista email/salasana ja että Email/Password on päällä Firebase Authissa.";
       }
     });
 
@@ -411,7 +415,6 @@
       try { await signOut(auth); } catch (e) { console.error(e); }
     });
 
-    // Live read for everyone
     onValue(teamsRoot, (snap) => {
       const val = snap.val() || {};
       const teams = Object.entries(val).map(([id, data]) => ({
@@ -449,7 +452,6 @@
         top.appendChild(name);
         top.appendChild(score);
 
-        // Admin-only actions (piilotetaan CSS:llä readonly-tilassa)
         const actions = document.createElement("div");
         actions.className = "team-actions";
 
@@ -498,7 +500,7 @@
           await runTransaction(teamRef, (current) => {
             if (current == null) return current;
             const cur = Math.max(0, clampInt(Number(current.points || 0)));
-            const next = Math.max(0, cur + delta); // ei miinukselle
+            const next = Math.max(0, cur + delta);
             return { ...current, points: next };
           });
         }
@@ -556,7 +558,6 @@
       try { await set(teamsRoot, null); } catch (e) { console.error(e); }
     });
 
-    // default: katsoja
     setAdminMode(false);
   </script>
 </body>
